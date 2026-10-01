@@ -10,6 +10,6 @@ class TestSmsReceiver : BroadcastReceiver() {
         val sender = intent.getStringExtra("sender") ?: "+994500000000"
         val body = intent.getStringExtra("body") ?: ""
 
-        Alerter.handle(goAsync(), sender, body)
+        Alerter.handle(context.applicationContext, goAsync(), sender, body)
     }
 }

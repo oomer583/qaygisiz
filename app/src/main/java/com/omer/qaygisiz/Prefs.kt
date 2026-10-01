@@ -38,6 +38,25 @@ object Prefs {
         get() = get("chat", Secrets.TELEGRAM_CHAT_ID)
         set(value) = put("chat", value)
 
+    private fun getBool(key: String, fallback: Boolean): Boolean =
+        sp?.getBoolean(key, fallback) ?: fallback
+
+    private fun putBool(key: String, value: Boolean) {
+        sp?.edit()?.putBoolean(key, value)?.apply()
+    }
+
+    /**
+     * Whether the protected phone also shows its owner a calm notice.
+     *
+     * Off by default, on purpose. The point of this app is that the person who
+     * received the scam is never asked to judge it. I tested the idea against the
+     * most phone-fearful person in my family, who is frightened even by a routine
+     * balance message: for her, an extra notice is itself the harm. Families who
+     * want the extra hold can turn it on.
+     */
+    var showOwnerNotice: Boolean
+        get() = getBool("owner_notice", false)
+        set(value) = putBool("owner_notice", value)
     val isConfigured: Boolean
         get() {
             val t = telegramToken

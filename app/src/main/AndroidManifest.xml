@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".QaygisizApp"
@@ -44,6 +45,10 @@
                 <action android:name="com.omer.qaygisiz.TEST_SMS" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".NoticeDismissReceiver"
+            android:exported="false" />
 
     </application>
 

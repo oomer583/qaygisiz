@@ -1,13 +1,19 @@
 package com.omer.qaygisiz
 
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.util.Log
 
 object Alerter {
 
     private const val TAG = "Qaygisiz"
 
-    fun handle(pending: BroadcastReceiver.PendingResult?, sender: String, body: String) {
+    fun handle(
+        context: Context,
+        pending: BroadcastReceiver.PendingResult?,
+        sender: String,
+        body: String
+    ) {
         val result = LinkScanner.scan(sender, body)
 
         Log.d(TAG, "-----------------------------")
@@ -23,6 +29,11 @@ object Alerter {
             pending?.finish()
             return
         }
+
+        // The phone's owner is told nothing about the fraud and asked nothing. This
+        // only holds them still until their family member calls, and it stays off
+        // unless a family deliberately turned it on.
+        if (Prefs.showOwnerNotice) UserNotice.show(context)
 
         Thread {
             try {

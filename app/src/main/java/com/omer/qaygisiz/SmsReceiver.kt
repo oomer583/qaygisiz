@@ -16,6 +16,6 @@ class SmsReceiver : BroadcastReceiver() {
         val sender = messages[0].originatingAddress ?: "unknown"
         val body = messages.joinToString("") { it.messageBody ?: "" }
 
-        Alerter.handle(goAsync(), sender, body)
+        Alerter.handle(context.applicationContext, goAsync(), sender, body)
     }
 }

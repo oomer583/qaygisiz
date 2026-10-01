@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -71,6 +72,7 @@ fun SetupScreen(modifier: Modifier = Modifier) {
     var token by remember { mutableStateOf(Prefs.telegramToken) }
     var chatId by remember { mutableStateOf(Prefs.telegramChatId) }
     var message by remember { mutableStateOf("") }
+    var ownerNotice by remember { mutableStateOf(Prefs.showOwnerNotice) }
 
     var hasSms by remember {
         mutableStateOf(
@@ -91,6 +93,7 @@ fun SetupScreen(modifier: Modifier = Modifier) {
         Prefs.protectedPerson = person
         Prefs.telegramToken = token
         Prefs.telegramChatId = chatId
+        Prefs.showOwnerNotice = ownerNotice
     }
 
     Column(
@@ -177,6 +180,20 @@ fun SetupScreen(modifier: Modifier = Modifier) {
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(ownerNoticeLabel(lang))
+                Text(
+                    ownerNoticeHelp(lang),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Switch(checked = ownerNotice, onCheckedChange = { ownerNotice = it })
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
                 persist()
@@ -211,6 +228,22 @@ fun SetupScreen(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Off by default. The whole point of the app is that the person who received the
+ * scam is never asked to judge it, and for a very anxious user an extra notice is
+ * itself the harm. A family that wants the extra hold can turn it on here.
+ */
+private fun ownerNoticeLabel(lang: Lang) = when (lang) {
+    Lang.AZ -> "Telefon sahibinə də sakit bildiriş göstər"
+    Lang.EN -> "Also show the phone's owner a calm notice"
+    Lang.RU -> "Показывать владельцу телефона спокойное уведомление"
+}
+
+private fun ownerNoticeHelp(lang: Lang) = when (lang) {
+    Lang.AZ -> "Varsayılan olaraq bağlıdır. Çox narahat olan istifadəçi üçün əlavə bildirişin özü ziyandır."
+    Lang.EN -> "Off by default. For a very anxious user, an extra notice is itself the harm."
+    Lang.RU -> "По умолчанию выключено. Для очень тревожного человека лишнее уведомление само по себе вредно."
+}
 @Composable
 private fun LangButton(label: String, selected: Boolean, onClick: () -> Unit) {
     if (selected) {

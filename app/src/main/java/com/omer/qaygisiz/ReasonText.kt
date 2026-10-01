@@ -174,9 +174,9 @@ object Texts {
     }
 
     fun from(lang: Lang) = when (lang) {
-        Lang.AZ -> "Kimdən"
-        Lang.EN -> "From"
-        Lang.RU -> "От"
+        Lang.AZ -> "Göstərilən ad"
+        Lang.EN -> "Shown as"
+        Lang.RU -> "Отображается как"
     }
 
     fun messageLabel(lang: Lang) = when (lang) {
