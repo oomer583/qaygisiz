@@ -1,0 +1,18 @@
+Qaygisiz detection measurement
+corpus: 4538 messages, Shahbazov (2026) doi:10.25045/jpit.v17.i1.04
+
+DEV (weights were tuned here)
+  smishing  n= 314  caught= 295  missed= 19   recall=93.9%
+  legitimate n=1543 false alarms= 27 (1.7%)  precision=91.6%  F1=92.8
+  spam      n= 412  alarms= 202
+
+TEST (held out)
+  smishing  n= 298  caught= 269  missed= 29   recall=90.3%
+  legitimate n=1494 false alarms= 29 (1.9%)  precision=90.3%  F1=90.3
+  spam      n= 477  alarms= 237
+
+WHOLE CORPUS
+  smishing  n= 612  caught= 564  missed= 48   recall=92.2%
+  legitimate n=3037 false alarms= 56 (1.8%)  precision=91.0%  F1=91.6
+  spam      n= 889  alarms= 439
+

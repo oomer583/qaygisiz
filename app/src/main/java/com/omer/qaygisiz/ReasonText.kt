@@ -6,8 +6,16 @@ enum class ReasonCode {
     SHORTENER,
     SUSPICIOUS_TLD,
     BRAND_MISMATCH,
+    BODY_BRAND_MISMATCH,
     INSECURE_HTTP,
     URGENCY,
+    PRIZE_CLAIM,
+    PRIZE_LURE,
+    MONEY_PRIZE,
+    PREMIUM_RATE,
+    CALLBACK,
+    PREMIUM_SHORTCODE,
+    UNKNOWN_LINK_ACTION,
     SENDER_MISMATCH
 }
 
@@ -47,6 +55,12 @@ object ReasonText {
             Lang.RU -> "Использует известное имя (" + reason.a + "), но домен не официальный: " + reason.b
         }
 
+        ReasonCode.BODY_BRAND_MISMATCH -> when (lang) {
+            Lang.AZ -> "Mesaj " + reason.a + " adından yazılıb, amma link onun rəsmi saytına aparmır"
+            Lang.EN -> "The message speaks for " + reason.a + " but the link does not go to its official site"
+            Lang.RU -> "Сообщение пишет от имени " + reason.a + ", но ссылка ведёт не на его официальный сайт"
+        }
+
         ReasonCode.INSECURE_HTTP -> when (lang) {
             Lang.AZ -> "Bağlantı şifrələnməyib (http)"
             Lang.EN -> "The connection is not encrypted (http)"
@@ -57,6 +71,48 @@ object ReasonText {
             Lang.AZ -> "Mesaj təcili hərəkət tələb edir"
             Lang.EN -> "The message demands urgent action"
             Lang.RU -> "Сообщение требует срочных действий"
+        }
+
+        ReasonCode.PRIZE_CLAIM -> when (lang) {
+            Lang.AZ -> "Mesaj qazanılmış mükafatdan danışır"
+            Lang.EN -> "The message claims a prize has been won"
+            Lang.RU -> "Сообщение утверждает, что выигран приз"
+        }
+
+        ReasonCode.PRIZE_LURE -> when (lang) {
+            Lang.AZ -> "Pulsuz və ya hədiyyə vədi var"
+            Lang.EN -> "It promises something free or a gift"
+            Lang.RU -> "Обещает что-то бесплатно или подарок"
+        }
+
+        ReasonCode.MONEY_PRIZE -> when (lang) {
+            Lang.AZ -> "Konkret pul məbləği ilə mükafat vəd edilir"
+            Lang.EN -> "A specific sum of money is promised as a prize"
+            Lang.RU -> "В качестве приза обещана конкретная сумма денег"
+        }
+
+        ReasonCode.PREMIUM_RATE -> when (lang) {
+            Lang.AZ -> "Dəqiqə və ya mesaj qiyməti yazılıb: bu, pullu xəttdir"
+            Lang.EN -> "A per-minute or per-message price is printed: this is a premium-rate line"
+            Lang.RU -> "Указана цена за минуту или сообщение: это платная линия"
+        }
+
+        ReasonCode.CALLBACK -> when (lang) {
+            Lang.AZ -> "Link yoxdur, amma naməlum nömrəyə zəng etmək istənir"
+            Lang.EN -> "There is no link, but it asks you to ring an unfamiliar number"
+            Lang.RU -> "Ссылки нет, но просят позвонить на незнакомый номер"
+        }
+
+        ReasonCode.PREMIUM_SHORTCODE -> when (lang) {
+            Lang.AZ -> "Qısa nömrəyə söz göndərmək istənir: abunə tələsi ola bilər"
+            Lang.EN -> "It asks you to text a word to a short code: a possible subscription trap"
+            Lang.RU -> "Просят отправить слово на короткий номер: возможна подписка-ловушка"
+        }
+
+        ReasonCode.UNKNOWN_LINK_ACTION -> when (lang) {
+            Lang.AZ -> "Tanınmayan saytda nəsə etmək tələb olunur"
+            Lang.EN -> "It asks you to act on a site nobody recognises"
+            Lang.RU -> "Просят что-то сделать на неизвестном сайте"
         }
 
         ReasonCode.SENDER_MISMATCH -> when (lang) {

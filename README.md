@@ -78,6 +78,23 @@ Two files are not in the repository because they hold credentials. Create them:
 
 Step 2 to 4 is the part that still asks too much of an ordinary user. Replacing it with a single "Link Telegram" button is the next thing on the list.
 
+## Does it work
+
+Measured against a public, peer-reviewed corpus of 4,538 real Azerbaijani SMS
+(Shahbazov 2026, doi:10.25045/jpit.v17.i1.04), on the half of it that was held out
+while the rules were written:
+
+| | first version | this version |
+|---|---|---|
+| smishing caught | 19.8% | **90.3%** |
+| legitimate messages falsely flagged | 1.9% | **1.9%** |
+
+Two TF-IDF classifiers trained on the other half score 84.6% and 81.9% recall on the
+same held-out messages, at lower precision. This detector needs no model file and no
+network call, and it reports which signals fired.
+
+Full method, the exact split, the per-signal breakdown and the limitations:
+[MEASUREMENT.md](MEASUREMENT.md).
 ## Tests
 
 `LinkScannerTest` covers the detection layer with 11 cases that run on the JVM: no emulator, no SIM card, no network and no API key.
