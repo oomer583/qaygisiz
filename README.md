@@ -80,7 +80,9 @@ Step 2 to 4 is the part that still asks too much of an ordinary user. Replacing 
 
 ## Tests
 
-`LinkScannerTest` covers the detection layer with 8 cases: a normal message, an official bank link, a shortened link with urgency wording, a lookalike bank domain, a bare IP address, an urgent message with no link at all, Azerbaijani diacritics, and a multi-part message. They run on the JVM, no emulator required.
+`LinkScannerTest` covers the detection layer with 11 cases that run on the JVM: no emulator, no SIM card, no network and no API key.
+
+Four cases must stay silent — ordinary chat, a real bank balance notification, a link to a genuine bank domain, and a cheap TLD on its own — because an alert that cries wolf is worse than no alert at all: the family member stops reading it. Five must raise the alarm: a lookalike bank domain, a punycode lookalike, a bare IP address with urgency wording, a bare IP address on its own, and a shortened link with urgency wording. Two cover language handling and reporting: Azerbaijani diacritics matched against an ASCII keyword list, and the detected URL being reported back to the caller.
 
 ## Tech
 
