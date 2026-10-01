@@ -24,8 +24,8 @@ object TelegramNotifier {
                 .openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.doOutput = true
-            conn.connectTimeout = 5000
-            conn.readTimeout = 8000
+            conn.connectTimeout = 3000
+            conn.readTimeout = 4000
             conn.setRequestProperty(
                 "Content-Type",
                 "application/x-www-form-urlencoded; charset=UTF-8"
@@ -77,7 +77,7 @@ object TelegramNotifier {
         sb.append(head).append("\n")
         sb.append(Texts.riskLabel(lang)).append(": ").append(risk).append("\n")
 
-        val person = Prefs.protectedPerson
+        val person = Prefs.protectedPersonAddressed
         if (person.isNotBlank()) {
             sb.append(Texts.phoneOwner(lang)).append(": ").append(person).append("\n")
         }

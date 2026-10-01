@@ -5,10 +5,10 @@ object Prompts {
     fun explainScam(sender: String, body: String, result: ScanResult): String {
         val lang = Settings.language
         val checks = result.reasons.joinToString("; ") { ReasonText.of(it, Lang.EN) }
-        val who = if (Prefs.protectedPerson.isBlank()) {
+        val who = if (Prefs.protectedPersonAddressed.isBlank()) {
             Texts.defaultPerson(lang)
         } else {
-            Prefs.protectedPerson
+            Prefs.protectedPersonAddressed
         }
 
         return """

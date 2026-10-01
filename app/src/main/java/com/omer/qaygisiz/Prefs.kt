@@ -57,6 +57,10 @@ object Prefs {
     var showOwnerNotice: Boolean
         get() = getBool("owner_notice", false)
         set(value) = putBool("owner_notice", value)
+    /** The protected person in the form the alert should address them. See Addressing. */
+    val protectedPersonAddressed: String
+        get() = Addressing.forReader(protectedPerson)
+
     val isConfigured: Boolean
         get() {
             val t = telegramToken

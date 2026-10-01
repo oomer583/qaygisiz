@@ -20,3 +20,7 @@ keystore.properties
 *.jks
 *.keystore
 corpus/dataset.csv
+
+# local scratch
+demo1.mp4
+ui.png
