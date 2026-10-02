@@ -424,9 +424,15 @@ private fun ownerNoticeLabel(lang: Lang) = when (lang) {
 }
 
 private fun ownerNoticeHelp(lang: Lang) = when (lang) {
-    Lang.AZ -> "Mesajın yoxlandığını görür. Ondan heç nə soruşulmur."
-    Lang.EN -> "They see that the message is being checked. They are never asked to decide."
-    Lang.RU -> "Он видит, что сообщение проверяется. Его ни о чём не спрашивают."
+    Lang.AZ -> "Mesajın yoxlandığını görür, ondan heç nə soruşulmur. " +
+        "Linklərə toxunmağa meyli olan biri üçün yandırın. " +
+        "Tez təşvişə düşən biri üçün sönülü saxlayın."
+    Lang.EN -> "They see that the message is being checked, and are never asked to decide. " +
+        "Turn it on for someone who tends to tap links. " +
+        "Leave it off for someone who panics easily."
+    Lang.RU -> "Он видит, что сообщение проверяется, и его ни о чём не спрашивают. " +
+        "Включите для того, кто склонен нажимать на ссылки. " +
+        "Оставьте выключенным для того, кто легко паникует."
 }
 
 @Composable
