@@ -1,10 +1,15 @@
+````markdown
 # Qayğısız
 
 **An Android app that catches scam SMS on an elderly person's phone and warns their family — not them.**
 
 Built for EurekaDev 2026 (Coding Track) by Ömər Kərimli, 14, Baku, Azerbaijan.
 
-[![Qayğısız — demo video](demo-thumbnail.png)](https://www.youtube.com/watch?v=5FdfSbqueGE)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=5FdfSbqueGE">
+    <img src="demo-thumbnail.png" width="640" alt="Qayğısız — demo video">
+  </a>
+</p>
 
 The installable, signed APK is on the **Releases** page of this repository.
 
@@ -152,3 +157,4 @@ Kotlin, Jetpack Compose, Material 3. `BroadcastReceiver` for SMS, `SharedPrefere
 ## Licence
 
 MIT.
+````
