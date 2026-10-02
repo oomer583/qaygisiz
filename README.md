@@ -1,4 +1,3 @@
-````markdown
 # Qayğısız
 
 **An Android app that catches scam SMS on an elderly person's phone and warns their family — not them.**
@@ -157,4 +156,3 @@ Kotlin, Jetpack Compose, Material 3. `BroadcastReceiver` for SMS, `SharedPrefere
 ## Licence
 
 MIT.
-````
