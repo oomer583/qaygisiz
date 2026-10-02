@@ -4,6 +4,10 @@
 
 Built for EurekaDev 2026 (Coding Track) by Ömər Kərimli, 14, Baku, Azerbaijan.
 
+[![Qayğısız — demo video](demo-thumbnail.png)](https://www.youtube.com/watch?v=5FdfSbqueGE)
+
+The installable, signed APK is on the **Releases** page of this repository.
+
 ---
 
 ## The problem
@@ -50,6 +54,10 @@ The model layer has four levels of fallback (three free OpenRouter models, then 
 
 Azerbaijani, English and Russian. The detection layer returns reason **codes**, not strings, so adding a language is one file. The AI explanation follows the selected language.
 
+## Install it
+
+The signed APK is on the [Releases](https://github.com/oomer583/qaygisiz/releases) page of this repository. Download the `.apk` file from the latest release and install it on the phone you want to protect.
+
 ## Build it yourself
 
 ```bash
@@ -76,7 +84,7 @@ Two files are not in the repository because they hold credentials. Create them:
 4. Open `https://api.telegram.org/bot<TOKEN>/getUpdates` and read the `chat.id`.
 5. Enter the token and the chat ID on the app's setup screen, choose a language, say who is being protected, grant the SMS permission, and press **Send a test message**.
 
-Step 2 to 4 is the part that still asks too much of an ordinary user. Replacing it with a single "Link Telegram" button is the next thing on the list.
+Steps 2 to 4 are the part that still asks too much of an ordinary user. Replacing them with a single "Link Telegram" button is the next thing on the list.
 
 ## Does it work
 
@@ -95,11 +103,38 @@ network call, and it reports which signals fired.
 
 Full method, the exact split, the per-signal breakdown and the limitations:
 [MEASUREMENT.md](MEASUREMENT.md).
+
+## What it does not do
+
+It does not stop the phone's owner from tapping the link. Android gives no way to block
+that without becoming the default SMS app, which would make Qayğısız far more invasive
+than it needs to be. What it relies on instead is speed: the warning reaches the family
+member within seconds, usually before the owner has decided what to do. That is a real
+gap, and I would rather state it than let someone find it.
+
 ## Tests
 
-`LinkScannerTest` covers the detection layer with 11 cases that run on the JVM: no emulator, no SIM card, no network and no API key.
+`./gradlew test` runs 19 tests on the JVM: no emulator, no SIM card, no network and no
+API key. Eighteen of them pin the detection layer down. The nineteenth is the corpus
+measurement, and it is skipped unless `corpus/dataset.csv` is present, so a clean clone
+still builds.
 
-Four cases must stay silent — ordinary chat, a real bank balance notification, a link to a genuine bank domain, and a cheap TLD on its own — because an alert that cries wolf is worse than no alert at all: the family member stops reading it. Five must raise the alarm: a lookalike bank domain, a punycode lookalike, a bare IP address with urgency wording, a bare IP address on its own, and a shortened link with urgency wording. Two cover language handling and reporting: Azerbaijani diacritics matched against an ASCII keyword list, and the detected URL being reported back to the caller.
+Six cases must stay silent — ordinary chat, a real bank balance notification, a link to a
+genuine bank domain, a payment confirmation from a deep subdomain of one, a telecom using
+a link shortener, and a cheap TLD on its own — because an alert that cries wolf is worse
+than no alert at all: the family member stops reading it.
+
+Six cover links that impersonate: a lookalike bank domain, a message that speaks for
+Azerpoct while the link goes somewhere else, a punycode lookalike, a bare IP address with
+urgency wording, a bare IP address on its own, and a shortened link with urgency wording.
+
+Three cover scams with no link at all — a prize with a callback number, a premium-rate
+line disclosing its per-minute price, and "text this word to this short code". Four of the
+five messages the detector used to miss looked like these.
+
+Three cover language handling and reporting: Azerbaijani diacritics matched against an
+ASCII keyword list, the *tasdiq* spelling that cost most of one campaign, and the detected
+URL being reported back to the caller.
 
 ## Tech
 
@@ -112,7 +147,7 @@ Kotlin, Jetpack Compose, Material 3. `BroadcastReceiver` for SMS, `SharedPrefere
 - One shared bot with a one-tap pairing flow, instead of asking the user to create their own.
 - Reading WhatsApp messages through a notification listener.
 - A history screen showing what was flagged and when.
-- Measurement: a corpus of real scam messages, with caught/missed numbers published here.
+- A corpus of real Azerbaijani scam messages collected in the field, so that no part of it is translated from older English spam.
 
 ## Licence
 
