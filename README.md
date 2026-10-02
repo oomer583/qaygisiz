@@ -1,5 +1,7 @@
 # Qayğısız
 
+[![tests](https://github.com/oomer583/qaygisiz/actions/workflows/tests.yml/badge.svg)](https://github.com/oomer583/qaygisiz/actions/workflows/tests.yml)
+
 **An Android app that catches scam SMS on an elderly person's phone and warns their family — not them.**
 
 Built for EurekaDev 2026 (Coding Track) by Ömər Kərimli, 14, Baku, Azerbaijan.
