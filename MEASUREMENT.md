@@ -30,7 +30,7 @@ Reproduce it:
 
 ```
 tools/fetch-corpus.ps1          # or tools/fetch-corpus.sh
-./gradlew test --tests '*CorpusMeasurementTest*'
+./gradlew :app:testDebugUnitTest --tests '*CorpusMeasurementTest*'
 ```
 
 ## The result
@@ -136,6 +136,100 @@ Being straight about the limits, because the limits are real:
 
 ## Reproducing the figures exactly
 
-`./gradlew test --tests '*CorpusMeasurementTest*'` writes `MEASUREMENT.txt` next to this file.
+`./gradlew :app:testDebugUnitTest --tests '*CorpusMeasurementTest*'` writes `MEASUREMENT.txt` next to this file.
 The committed copy of that file is the output of the run described above. If your numbers
 differ, the corpus has changed upstream or the rules have been edited — both worth knowing.
+
+---
+
+## What it still misses
+
+On the held-out TEST half the detector misses 29 smishing messages. Every one of them
+scores below the alarm threshold of 3 — fourteen score 0, eight score 1, seven score 2.
+None of them is a close call from the wrong side of the line. They are messages where
+too few rules fire at all.
+
+| what fired on the 29 missed messages | count |
+|---|---|
+| `INSECURE_HTTP` | 7 |
+| `PRIZE_LURE` | 5 |
+| `URGENCY` | 3 |
+| `PRIZE_CLAIM` | 2 |
+| nothing fired at all | 14 |
+
+Reading the 29, the gap is not one hole but five:
+
+1. **Short codes and prices in wording the rules do not cover.** `PREMIUM_SHORTCODE`
+   matches *"HƏ yazıb 85023-ə göndərin"* but not *"ŞKL sözünü 89080 nömrəsinə göndərin"*.
+   `PREMIUM_RATE` matches a per-minute price (*20qəp/dəq*) but not a flat one
+   (*Qiymət: 1.50AZN*). Four missed messages contain one of these and were not scored for it.
+2. **Invented or misspelt top-level domains** — `.nett`, `.bizz`, `.azz`, `.co.cc`.
+   There is no rule for a TLD that does not exist.
+3. **A digit substituted into a plausible domain** — `southbankm0saics.az`, with a zero
+   for the letter o. The punycode rule does not cover Latin digit substitution.
+4. **A bank's name plus a payment demand and no link at all.** Two missed messages name
+   Kapital Bank and give a callback number. `BODY_BRAND_MISMATCH` compares the named
+   institution against the link host, so with no link there is nothing to compare.
+5. **An `.apk` download link.** One missed message offers a bank app "security update"
+   as a direct `.apk`. The file extension is not scored.
+
+## Ten of the misses cannot be caught on this corpus at all
+
+Ten of the 29 contain a phone number the dataset has redacted: `08XXXXXXXXX`,
+`07XXXXXXX`, `99XXXXXXXXX`. `CALLBACK` and `PREMIUM_RATE` look for digits, and there are
+no digits left to find. No version of this detector can score those messages on this
+corpus, because the evidence was removed before the data was published.
+
+That is 34% of the remaining gap. The reachable ceiling here is well below 100%, and the
+distance has nothing to do with the rules.
+
+## Where the false alarms come from
+
+29 legitimate messages are flagged in the TEST half.
+
+| signal present on a false alarm | count |
+|---|---|
+| `URGENCY` | 17 |
+| `UNKNOWN_LINK_ACTION` | 8 |
+| `PREMIUM_SHORTCODE` | 3 |
+| `BODY_BRAND_MISMATCH` | 2 |
+| `SHORTENER` | 2 |
+| `CALLBACK` | 2 |
+| `BRAND_MISMATCH`, `SENDER_MISMATCH`, `INSECURE_HTTP`, `PRIZE_LURE` | 1 each |
+
+**Eleven of the 29 are caused by `URGENCY` and nothing else.** Some of them are ordinary
+messages between people:
+
+> *"Salam, mahnıları hansı saytdan yükləyim, təcilidir, xahiş edirəm de."*
+> *"Zəhmət olmasa mənə zəng edə bilərsən? ... Təcili zəng etməliyəm."*
+
+Others are real bank notifications that are urgent because the situation is urgent — an
+ABB one-time code, an AccessBank dormancy notice. `URGENCY` fires at 44.9% on smishing
+and 3.8% on legitimate messages, so it earns its place, but it is the single largest
+source of noise and the next thing to split into finer signals.
+
+**The worst false alarm scores higher than every scam the detector missed.** Row 114 is a
+genuine Azercell message confirming a number order. It links to `www.azercellim.com`, a
+real Azercell domain whose name does not match the brand string, so `BRAND_MISMATCH`,
+`BODY_BRAND_MISMATCH` and `SENDER_MISMATCH` all fire at once: **score 11, DANGEROUS**.
+The highest-scoring missed scam scored 2.
+
+This says something the headline numbers do not: the score is not calibrated at the top
+end. A high score means *many rules agreed*, not *more likely to be fraud*. Three brand
+rules looking at the same mismatch are not three pieces of evidence.
+
+## What this corpus cannot say about Russian
+
+Azerbaijan is bilingual and the detector reads only one of its languages. That gap is
+real, but it cannot be measured here: of 4,538 rows, **8 contain any Cyrillic text, and
+exactly one of those is smishing.** Adding Russian keyword rules to this detector today
+would produce a feature whose effect could not be shown either way. Collecting Russian
+scam SMS has to come before writing Russian rules.
+
+## Why none of this is fixed in this version
+
+Every number quoted in this repository, in the demo video and on the Devpost entry comes
+from one run of the detector as it stands. Changing a rule changes the numbers, and a
+number that appears in four places and is corrected in three is worse than one that is
+left alone. These findings are the next version's work list, published before that
+version exists.
