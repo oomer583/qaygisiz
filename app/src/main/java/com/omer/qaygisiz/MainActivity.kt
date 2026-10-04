@@ -59,7 +59,8 @@ class MainActivity : ComponentActivity() {
             QaygisizTheme {
                 // No separate "setup done" flag. If the two fields a warning cannot be
                 // sent without are filled in, setup happened. One less thing to go stale.
-                var showSettings by remember { mutableStateOf(!isConfigured()) }
+                var showSettings by remember { mutableStateOf(!BuildConfig.DEMO && !isConfigured()) }
+                var showCheck by remember { mutableStateOf(false) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { inner ->
                     if (showSettings) {
@@ -67,10 +68,16 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(inner),
                             onBack = { showSettings = false }
                         )
+                    } else if (showCheck) {
+                        CheckScreen(
+                            modifier = Modifier.padding(inner),
+                            onBack = { showCheck = false }
+                        )
                     } else {
                         HomeScreen(
                             modifier = Modifier.padding(inner),
-                            onOpenSettings = { showSettings = true }
+                            onOpenSettings = { showSettings = true },
+                            onOpenCheck = { showCheck = true }
                         )
                     }
                 }
@@ -98,14 +105,18 @@ private fun currentLang(): Lang = when (Prefs.language.lowercase()) {
  * because that is the one setting that can be silently wrong.
  */
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onOpenSettings: () -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onOpenSettings: () -> Unit,
+    onOpenCheck: () -> Unit = {}
+) {
     val context = LocalContext.current
     val lang = currentLang()
 
     val hasSms = ContextCompat.checkSelfPermission(
         context, Manifest.permission.RECEIVE_SMS
     ) == PackageManager.PERMISSION_GRANTED
-    val ready = isConfigured() && hasSms
+    val ready = !BuildConfig.DEMO && isConfigured() && hasSms
 
     Column(
         modifier = modifier
@@ -123,8 +134,10 @@ fun HomeScreen(modifier: Modifier = Modifier, onOpenSettings: () -> Unit) {
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = onOpenSettings) {
-                Icon(Icons.Filled.Settings, contentDescription = settingsTitle(lang))
+            if (!BuildConfig.DEMO) {
+                IconButton(onClick = onOpenSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = settingsTitle(lang))
+                }
             }
         }
 
@@ -133,7 +146,9 @@ fun HomeScreen(modifier: Modifier = Modifier, onOpenSettings: () -> Unit) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (ready) {
+                containerColor = if (BuildConfig.DEMO) {
+                    MaterialTheme.colorScheme.surfaceVariant
+                } else if (ready) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
                     MaterialTheme.colorScheme.errorContainer
@@ -145,18 +160,35 @@ fun HomeScreen(modifier: Modifier = Modifier, onOpenSettings: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    if (ready) UiTexts.statusActive(lang) else UiTexts.statusIncomplete(lang),
+                    when {
+                        BuildConfig.DEMO -> demoTitle(lang)
+                        ready -> UiTexts.statusActive(lang)
+                        else -> UiTexts.statusIncomplete(lang)
+                    },
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    if (ready) homeListening(lang) else homeIncompleteHelp(lang),
+                    when {
+                        BuildConfig.DEMO -> demoBody(lang)
+                        ready -> homeListening(lang)
+                        else -> homeIncompleteHelp(lang)
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
 
-        if (!ready) {
+        if (!ready && !BuildConfig.DEMO) {
             Button(onClick = onOpenSettings) { Text(homeFinishSetup(lang)) }
+        }
+
+        // Anyone can check the claim here without waiting for a scam to arrive.
+        // Same LinkScanner, same thresholds, same rule codes as a real SMS.
+        OutlinedButton(
+            onClick = onOpenCheck,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(homeCheckButton(lang))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -442,4 +474,30 @@ private fun LangButton(label: String, selected: Boolean, onClick: () -> Unit) {
     } else {
         OutlinedButton(onClick = onClick) { Text(label) }
     }
+}
+
+private fun homeCheckButton(lang: Lang) = when (lang) {
+    Lang.AZ -> "Mesajı yoxla"
+    Lang.EN -> "Check a message"
+    Lang.RU -> "Проверить сообщение"
+}
+
+// Shown only in the demo build. It has to say plainly what this build cannot do,
+// because the home screen of the full build claims the opposite.
+private fun demoTitle(lang: Lang) = when (lang) {
+    Lang.AZ -> "Demo versiyası"
+    Lang.EN -> "Demo build"
+    Lang.RU -> "Демо-версия"
+}
+
+private fun demoBody(lang: Lang) = when (lang) {
+    Lang.AZ -> "Bu versiya SMS oxumur və ailə üzvünə heç bir xəbərdarlıq göndərmir. " +
+        "Yalnız aşağıdakı düymə ilə yazdığınız mətni, həqiqi SMS gələndə işləyən " +
+        "qaydaların eynisi ilə yoxlayır."
+    Lang.EN -> "This build does not read SMS and sends no warning to anyone. " +
+        "It only runs the text you type below through the same rules that run " +
+        "when a real SMS arrives."
+    Lang.RU -> "Эта версия не читает SMS и никому не отправляет предупреждений. " +
+        "Она только проверяет введённый ниже текст теми же правилами, которые " +
+        "срабатывают при получении настоящего SMS."
 }

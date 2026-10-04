@@ -28,6 +28,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Two builds from one source tree.
+    //
+    //   full - the real app. Listens for SMS, warns the family member.
+    //   demo - the same code with the SMS receiver and the RECEIVE_SMS permission
+    //          removed by src/demo/AndroidManifest.xml. Google Play Protect hard-blocks
+    //          sideloaded apps that ask for SMS permissions, so the full build cannot be
+    //          installed from a download link. The demo build can, and it still runs the
+    //          identical LinkScanner on text you paste in.
+    //
+    // The only difference between them is that manifest and this flag. Nothing in the
+    // detection layer is flavour-specific.
+    flavorDimensions += "dist"
+    productFlavors {
+        create("full") {
+            dimension = "dist"
+            isDefault = true
+            buildConfigField("boolean", "DEMO", "false")
+        }
+        create("demo") {
+            dimension = "dist"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+            buildConfigField("boolean", "DEMO", "true")
+        }
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
@@ -55,6 +81,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

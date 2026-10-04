@@ -30,7 +30,7 @@ Reproduce it:
 
 ```
 tools/fetch-corpus.ps1          # or tools/fetch-corpus.sh
-./gradlew :app:testDebugUnitTest --tests '*CorpusMeasurementTest*'
+./gradlew :app:testFullDebugUnitTest --tests '*CorpusMeasurementTest*'
 ```
 
 ## The result
@@ -136,7 +136,7 @@ Being straight about the limits, because the limits are real:
 
 ## Reproducing the figures exactly
 
-`./gradlew :app:testDebugUnitTest --tests '*CorpusMeasurementTest*'` writes `MEASUREMENT.txt` next to this file.
+`./gradlew :app:testFullDebugUnitTest --tests '*CorpusMeasurementTest*'` writes `MEASUREMENT.txt` next to this file.
 The committed copy of that file is the output of the run described above. If your numbers
 differ, the corpus has changed upstream or the rules have been edited — both worth knowing.
 

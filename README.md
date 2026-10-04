@@ -62,7 +62,62 @@ Azerbaijani, English and Russian. The detection layer returns reason **codes**, 
 
 ## Install it
 
-The signed APK is on the [Releases](https://github.com/oomer583/qaygisiz/releases) page of this repository. Download the `.apk` file from the latest release and install it on the phone you want to protect.
+There are two APKs on the [Releases](https://github.com/oomer583/qaygisiz/releases) page, and which one you want depends on whether you are protecting someone or just checking my work.
+
+### If you only want to try the detector — `qaygisiz-1.0.3-demo.apk`
+
+Download it, install it, open it, paste a message, press **Check**. It tells you what the
+detector decided, the score it gave, and which rules fired, by the same rule codes used in
+[MEASUREMENT.md](MEASUREMENT.md).
+
+This build **cannot read SMS and cannot warn anyone.** Its home screen says so. It only runs
+text you type through the detector. That is the whole point of it: it installs with no
+security block, so you can check the claim in this README in about thirty seconds.
+
+### If you want the real app — `qaygisiz-1.0.3.apk`
+
+**Google Play Protect will refuse to install this one.** The dialog reads *"App blocked to
+protect your device"* and it has no "install anyway" button. This is not a bug and not
+specific to Qayğısız: Play Protect hard-blocks sideloaded apps that request SMS permissions,
+and reading incoming SMS is the entire purpose of this app. Google's own policy lists
+*anti-SMS phishing* as a permitted use of `RECEIVE_SMS`, but only for developers who already
+have a published track record, which I do not have yet.
+
+If you want it anyway:
+
+1. Play Store → your profile picture → **Play Protect**
+2. Gear icon → turn off **Scan apps with Play Protect**
+3. Install the APK
+4. Turn the scanning back on
+
+With adb, `adb install qaygisiz-1.0.3.apk` installs it without touching that setting.
+
+### What is actually different between the two
+
+One file: [`app/src/demo/AndroidManifest.xml`](app/src/demo/AndroidManifest.xml). It removes
+the `RECEIVE_SMS` permission and the two SMS receivers, and that is all. Both APKs are built
+from this commit, by the same Gradle build, and signed with the same key. Nothing in the
+detection layer is build-specific — the `Check a message` screen calls `LinkScanner.scan()`,
+the same object `SmsReceiver` calls when a real message arrives, and the same one the 19
+tests exercise.
+
+Verify what you downloaded:
+
+```
+qaygisiz-1.0.3.apk
+  sha256  5fca79b51cf15a5af5cc2602698f99841552535d4af395dc0d847047c6c2be93
+
+qaygisiz-1.0.3-demo.apk
+  sha256  4ae63b2917fd8d662edc70bbe4accc0862a3484830edf685570f17f597072863
+
+both signed by
+  CN = Omer Kerimli, L = Baku, C = AZ
+  sha256  36:6D:1C:75:D7:7C:A6:E4:48:E2:D3:6B:4E:22:E1:93:9D:86:D4:C0:15:88:72:A4:23:1E:A1:45:E9:93:B2:4C
+```
+
+If you would rather not install anything at all, the [3:30 video](https://www.youtube.com/watch?v=5FdfSbqueGE)
+shows the app end to end, and every figure in this README can be reproduced from source — see
+[Tests](#tests).
 
 ## Build it yourself
 
@@ -75,11 +130,12 @@ Two files are not in the repository because they hold credentials. Create them:
 
 **1. `app/src/main/java/com/omer/qaygisiz/Secrets.kt`** — copy `Secrets.kt.example` and fill in what you have. All four values may be left empty; the app will simply ask for them on its setup screen.
 
-**2. `keystore.properties`** — only needed for a signed release build. Skip it and `assembleDebug` still works.
+**2. `keystore.properties`** — only needed for a signed release build. Skip it and the debug builds still work.
 
 ```bash
-./gradlew test            # unit tests for the detection layer, no device needed
-./gradlew assembleDebug   # installable APK
+./gradlew test                  # unit tests for the detection layer, no device needed
+./gradlew assembleFullDebug     # the real app
+./gradlew assembleDemoDebug     # the demo build, without the SMS permission
 ```
 
 ## Using it

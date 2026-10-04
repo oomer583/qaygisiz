@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The demo build, in one file.
+
+  Everything the full app does is kept except the two things that make Google Play
+  Protect refuse the install: the RECEIVE_SMS permission and the receiver that uses it.
+  Without them this APK installs from a download link with no block, and the detector
+  behind "Check a message" is byte-for-byte the same LinkScanner the full build runs.
+
+  It cannot read SMS and it cannot warn anyone. The home screen says so.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.RECEIVE_SMS"
+        tools:node="remove" />
+
+    <application>
+        <receiver
+            android:name=".SmsReceiver"
+            tools:node="remove" />
+        <receiver
+            android:name=".TestSmsReceiver"
+            tools:node="remove" />
+    </application>
+
+</manifest>
