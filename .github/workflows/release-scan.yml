@@ -1,0 +1,66 @@
+name: release-scan
+
+# Qaygisiz ships its APKs as release assets, which never pass through git.
+# The pre-commit gate and GitHub's secret scanning both look at the repository,
+# so neither of them can see what is compiled into a published binary.
+# This job closes that gap: it downloads every asset of a release and looks
+# for credentials baked into the dex.
+#
+# It prints only a truncated prefix of anything it finds. The logs of a public
+# repository are public, so a scanner that echoes the full value would publish
+# the leak a second time.
+
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to scan (e.g. v1.0.3)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  scan-release-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          mkdir -p assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir assets --clobber
+          ls -lh assets
+
+      - name: Scan the APKs for embedded credentials
+        run: |
+          set -u
+          PATTERN='AIza[0-9A-Za-z_-]{30,}|sk-or-v1-[0-9a-f]{40,}|sk-proj-[A-Za-z0-9_-]{20,}|sk-ant-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|[0-9]{8,10}:AA[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+          shopt -s nullglob
+          found=0
+          apks=(assets/*.apk)
+          if [ ${#apks[@]} -eq 0 ]; then
+            echo "No APK in this release - nothing to scan."
+            exit 0
+          fi
+          for apk in "${apks[@]}"; do
+            echo "=== $(basename "$apk")"
+            tmp=$(mktemp -d)
+            unzip -o -q "$apk" -d "$tmp"
+            hits=$(strings -n 8 "$tmp"/*.dex "$tmp"/resources.arsc "$tmp"/assets/* 2>/dev/null \
+                   | grep -aEo "$PATTERN" | sort -u)
+            if [ -n "$hits" ]; then
+              echo "::error title=Credential in release asset::$(basename "$apk") carries secrets - revoke them now"
+              while IFS= read -r h; do
+                echo "    ${h:0:12}... (${#h} characters)"
+              done <<< "$hits"
+              found=1
+            else
+              echo "    clean"
+            fi
+            rm -rf "$tmp"
+          done
+          exit $found
