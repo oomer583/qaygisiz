@@ -105,10 +105,10 @@ Verify what you downloaded:
 
 ```
 qaygisiz-1.0.3.apk
-  sha256  5fca79b51cf15a5af5cc2602698f99841552535d4af395dc0d847047c6c2be93
+  sha256  b2520d27832188d4a46add87c32f919be91f7f6b02299f364207d723fbcbe9f6
 
 qaygisiz-1.0.3-demo.apk
-  sha256  4ae63b2917fd8d662edc70bbe4accc0862a3484830edf685570f17f597072863
+  sha256  6a83264bd994591e42b4c75a166e027c46eb27d2e7d76dd831fbc08b10a8674e
 
 both signed by
   CN = Omer Kerimli, L = Baku, C = AZ
