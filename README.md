@@ -115,6 +115,13 @@ both signed by
   sha256  36:6D:1C:75:D7:7C:A6:E4:48:E2:D3:6B:4E:22:E1:93:9D:86:D4:C0:15:88:72:A4:23:1E:A1:45:E9:93:B2:4C
 ```
 
+Both APKs were built from an empty `Secrets.kt`, so neither carries a model key or a Telegram
+credential. The detection layer is unaffected: the scoring, the rule codes and the
+`Check a message` screen behave exactly as measured in [MEASUREMENT.md](MEASUREMENT.md), but the
+warning arrives without the AI explanation, because that step needs a key the build does not have.
+To exercise the model layer, build from source with your own keys: see
+[Build it yourself](#build-it-yourself).
+
 If you would rather not install anything at all, the [3:30 video](https://www.youtube.com/watch?v=5FdfSbqueGE)
 shows the app end to end, and every figure in this README can be reproduced from source — see
 [Tests](#tests).
@@ -128,7 +135,11 @@ cd qaygisiz
 
 Two files are not in the repository because they hold credentials. Create them:
 
-**1. `app/src/main/java/com/omer/qaygisiz/Secrets.kt`** — copy `Secrets.kt.example` and fill in what you have. All four values may be left empty; the app will simply ask for them on its setup screen.
+**1. `app/src/main/java/com/omer/qaygisiz/Secrets.kt`** — copy `Secrets.kt.example` and fill in what you have. Every value may be left empty. The setup screen supplies the Telegram token, the chat ID, the
+protected person and the language at runtime, and whatever is entered there wins over what is
+written in the file. The two model keys are not exposed on that screen, because they belong to
+whoever builds the app rather than to the person using it; left empty, the warning simply arrives
+without the AI explanation.
 
 **2. `keystore.properties`** — only needed for a signed release build. Skip it and the debug builds still work.
 
